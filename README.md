@@ -1,4 +1,4 @@
-An aysnchronous/non-blocking high-performance Modbus TCP master/slave implementation built on Netty.
+Async/non-blocking Modbus TCP master and slave implementation for Java and Scala.
 
 Quick Start
 --------
