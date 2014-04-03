@@ -18,16 +18,15 @@ package com.digitalpetri.modbus.master
 
 import com.codahale.metrics.{Timer, MetricRegistry}
 import com.digitalpetri.modbus.layers.TcpPayload
-import com.digitalpetri.modbus.master.ModbusTcpMaster.ModbusTcpMasterConfig
-import com.digitalpetri.modbus.{Modbus, ModbusResponse, ModbusRequest}
+import com.digitalpetri.modbus.{ModbusResponse, ModbusRequest}
 import io.netty.channel._
-import io.netty.util.{Timeout, TimerTask, HashedWheelTimer}
+import io.netty.util.concurrent.{Future => NettyFuture}
+import io.netty.util.{Timeout, TimerTask}
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
+import java.util.concurrent.{TimeUnit, ConcurrentHashMap}
 import org.slf4j.LoggerFactory
 import scala.Some
-import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Promise, Future}
+import scala.concurrent.{Promise, Future}
 import scala.util.{Failure, Success}
 
 
@@ -90,7 +89,7 @@ class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseH
 
   def onServiceResponse(service: TcpServiceResponse): Unit = {
     promises.remove(service.transactionId) match {
-      case (p,t,c) =>
+      case (p, t, c) =>
         responseCount.inc()
         c.stop()
         t.cancel()
@@ -108,7 +107,7 @@ class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseH
   private class TimeoutTask(txId: Short) extends TimerTask {
     def run(timeout: Timeout): Unit = {
       promises.remove(txId) match {
-        case (p,t,c) =>
+        case (p, t, c) =>
           timeoutCount.inc()
           p.failure(new Exception(s"request timed out after ${config.timeout.toMillis}ms"))
 
@@ -119,16 +118,3 @@ class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseH
 
 }
 
-object ModbusTcpMaster {
-
-  case class ModbusTcpMasterConfig(host: String,
-                                   port: Int = 502,
-                                   timeout: Duration = 5.seconds,
-                                   executionContext: ExecutionContext = ExecutionContext.global,
-                                   eventLoop: EventLoopGroup = Modbus.SharedEventLoop,
-                                   wheelTimer: HashedWheelTimer = Modbus.SharedWheelTimer,
-                                   metricRegistry: MetricRegistry = Modbus.SharedMetricRegistry,
-                                   instanceId: Option[String] = None)
-
-
-}

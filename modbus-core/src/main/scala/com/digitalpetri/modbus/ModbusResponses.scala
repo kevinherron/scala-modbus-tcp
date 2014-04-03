@@ -21,7 +21,8 @@ import com.digitalpetri.modbus.FunctionCodes._
 
 sealed abstract class ModbusResponse(val functionCode: FunctionCode) extends ModbusPdu
 
-case class ExceptionResponse(override val functionCode: FunctionCode, exceptionCode: ExceptionCode) extends ModbusResponse(functionCode)
+case class ExceptionResponse(override val functionCode: FunctionCode, exceptionCode: ExceptionCode)
+  extends ModbusResponse(functionCode)
 
 case class MaskWriteRegisterResponse(referenceAddress: Int, andMask: Short, orMask: Short)
   extends ModbusResponse(MaskWriteRegister)

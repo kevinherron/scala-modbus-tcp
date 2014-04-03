@@ -17,7 +17,6 @@
 package com.digitalpetri.modbus.slave
 
 import com.codahale.metrics.MetricRegistry
-import com.digitalpetri.modbus.Modbus
 import com.digitalpetri.modbus.layers.{ModbusTcpEncoder, ModbusTcpDecoder}
 import com.digitalpetri.modbus.serialization.{ModbusResponseEncoder, ModbusRequestDecoder}
 import com.digitalpetri.modbus.slave.ServiceRequest._
@@ -30,9 +29,9 @@ import java.net.SocketAddress
 import java.util.concurrent.atomic.AtomicReference
 import org.slf4j.LoggerFactory
 import scala.collection.concurrent.TrieMap
-import scala.concurrent.{Future, Promise, ExecutionContext}
+import scala.concurrent.{Future, Promise}
 
-class ModbusTcpSlave(config: ModbusTcpSlave.ModbusTcpSlaveConfig) {
+class ModbusTcpSlave(config: ModbusTcpSlaveConfig) {
 
   val log = config.instanceId match {
     case Some(instanceId) => LoggerFactory.getLogger(s"${getClass.getName}.$instanceId")
@@ -131,11 +130,3 @@ class ModbusTcpSlave(config: ModbusTcpSlave.ModbusTcpSlaveConfig) {
 
 }
 
-object ModbusTcpSlave {
-
-  case class ModbusTcpSlaveConfig(executionContext: ExecutionContext = ExecutionContext.global,
-                                  eventLoop: EventLoopGroup = Modbus.SharedEventLoop,
-                                  metricRegistry: MetricRegistry = Modbus.SharedMetricRegistry,
-                                  instanceId: Option[String] = None)
-
-}

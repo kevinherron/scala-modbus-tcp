@@ -17,7 +17,7 @@
 package com.digitalpetri.modbus.examples.slave
 
 import com.digitalpetri.modbus.Modbus
-import com.digitalpetri.modbus.slave.ModbusTcpSlave
+import com.digitalpetri.modbus.slave.{ModbusTcpSlaveConfig, ModbusTcpSlave}
 import com.typesafe.scalalogging.slf4j.Logging
 import scala.concurrent.ExecutionContext
 import scala.util.Failure
@@ -27,7 +27,7 @@ object SlaveExample extends App with Logging {
 
   implicit val ec = ExecutionContext.global
 
-  val config  = new ModbusTcpSlave.ModbusTcpSlaveConfig()
+  val config  = new ModbusTcpSlaveConfig()
   val slave   = new ModbusTcpSlave(config)
 
   slave.setRequestHandler(new ReadOnlyRequestHandler)

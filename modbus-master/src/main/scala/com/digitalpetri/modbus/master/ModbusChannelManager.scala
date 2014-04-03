@@ -17,7 +17,6 @@
 package com.digitalpetri.modbus.master
 
 import com.digitalpetri.modbus.layers.{ModbusTcpDecoder, ModbusTcpEncoder}
-import com.digitalpetri.modbus.master.ModbusTcpMaster.ModbusTcpMasterConfig
 import com.digitalpetri.modbus.serialization.{ModbusResponseDecoder, ModbusRequestEncoder}
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel._

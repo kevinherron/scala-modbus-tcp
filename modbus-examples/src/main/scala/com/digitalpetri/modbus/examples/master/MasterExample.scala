@@ -16,8 +16,7 @@
 
 package com.digitalpetri.modbus.examples.master
 
-import com.digitalpetri.modbus.master.ModbusTcpMaster
-import com.digitalpetri.modbus.master.ModbusTcpMaster.ModbusTcpMasterConfig
+import com.digitalpetri.modbus.master.{ModbusTcpMasterConfig, ModbusTcpMaster}
 import com.digitalpetri.modbus.{Modbus, ReadHoldingRegistersResponse, ReadHoldingRegistersRequest}
 import com.typesafe.scalalogging.slf4j.Logging
 import scala.concurrent.ExecutionContext
