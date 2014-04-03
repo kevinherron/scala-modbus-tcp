@@ -1,4 +1,4 @@
-Async/non-blocking Modbus TCP master and slave implementation for Java and Scala.
+Async/non-blocking Modbus TCP master and slave implementation for Scala.
 
 Quick Start
 --------
