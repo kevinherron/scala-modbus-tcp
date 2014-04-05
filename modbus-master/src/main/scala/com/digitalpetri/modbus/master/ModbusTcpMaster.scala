@@ -18,7 +18,7 @@ package com.digitalpetri.modbus.master
 
 import com.codahale.metrics.{Timer, MetricRegistry}
 import com.digitalpetri.modbus.layers.TcpPayload
-import com.digitalpetri.modbus.{ModbusResponse, ModbusRequest}
+import com.digitalpetri.modbus.{ModbusResponseException, ExceptionResponse, ModbusResponse, ModbusRequest}
 import io.netty.channel._
 import io.netty.util.concurrent.{Future => NettyFuture}
 import io.netty.util.{Timeout, TimerTask}
@@ -93,7 +93,11 @@ class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseH
         responseCount.inc()
         c.stop()
         t.cancel()
-        p.success(service.response)
+
+        service.response match {
+          case ex: ExceptionResponse    => p.failure(new ModbusResponseException(ex))
+          case response: ModbusResponse => p.success(response)
+        }
 
       case null =>
         lateResponseCount.inc()

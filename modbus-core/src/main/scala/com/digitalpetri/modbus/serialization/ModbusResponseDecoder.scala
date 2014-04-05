@@ -24,11 +24,14 @@ import scala.util.Try
 class ModbusResponseDecoder extends ModbusPduDecoder {
 
   def decode(buffer: ByteBuf): Try[ModbusPdu] = {
-    for {
-      functionCode    <- FunctionCode.fromByte(buffer.readByte())
-      modbusResponse  <- responseDecoder(functionCode)(buffer)
-    } yield {
-      modbusResponse
+    val code = buffer.readByte()
+
+    if (FunctionCode.isExceptionCode(code)) {
+      val functionCode = FunctionCode.fromByte(code - 0x80)
+      decodeException(functionCode)(buffer)
+    } else {
+      val functionCode = FunctionCode.fromByte(code)
+      responseDecoder(functionCode)(buffer)
     }
   }
 
@@ -117,6 +120,12 @@ class ModbusResponseDecoder extends ModbusPduDecoder {
     val orMask            = buffer.readShort()
 
     MaskWriteRegisterResponse(referenceAddress, andMask, orMask)
+  }
+
+  def decodeException(inner: FunctionCode)(buffer: ByteBuf) = Try {
+    val exceptionCode = ExceptionCode.fromByte(buffer.readByte())
+
+    ExceptionResponse(inner, exceptionCode)
   }
 
   def decodeUnsupported(code: Int)(buffer: ByteBuf) = Try {

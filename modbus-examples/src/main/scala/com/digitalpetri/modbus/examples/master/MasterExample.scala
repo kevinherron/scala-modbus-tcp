@@ -38,7 +38,7 @@ object MasterExample extends App with Logging {
         case _ => logger.error(s"Unexpected response: $response")
       }
 
-    case Failure(ex) => logger.error(s"Error reading holding registers: $ex")
+    case Failure(ex) => logger.error(s"Error reading holding registers: ${ex.getMessage}")
   }
 
   responseFuture.onComplete {

@@ -24,12 +24,9 @@ import scala.util.Try
 class ModbusRequestDecoder extends ModbusPduDecoder {
 
   def decode(buffer: ByteBuf): Try[ModbusPdu] = {
-    for {
-      functionCode  <- FunctionCode.fromByte(buffer.readByte())
-      modbusRequest <- requestDecoder(functionCode)(buffer)
-    } yield {
-      modbusRequest
-    }
+    val functionCode = FunctionCode.fromByte(buffer.readByte())
+
+    requestDecoder(functionCode)(buffer)
   }
 
   private def requestDecoder(functionCode: FunctionCode): ByteBuf => Try[ModbusPdu] = {
@@ -105,7 +102,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
     val coilAddress = buffer.readUnsignedShort()
     val coilValue   = buffer.readUnsignedShort()
 
-    val coilStatus  = (coilValue == 0xFF00)
+    val coilStatus  = coilValue == 0xFF00
 
     WriteSingleCoilRequest(coilAddress, coilStatus)
   }

@@ -17,9 +17,25 @@
 package com.digitalpetri.modbus
 
 
-sealed abstract case class ExceptionCode(exceptionCode: Int) {
+sealed abstract class ExceptionCode(val exceptionCode: Int)
 
-  override def toString = productPrefix + "(" + "0x%02X".format(exceptionCode) + ")"
+object ExceptionCode {
+
+  def fromByte(code: Byte): ExceptionCode = {
+    code match {
+      case IllegalFunction.exceptionCode                      => IllegalFunction
+      case IllegalDataAddress.exceptionCode                   => IllegalDataAddress
+      case IllegalDataValue.exceptionCode                     => IllegalDataValue
+      case ServerDeviceFailure.exceptionCode                  => ServerDeviceFailure
+      case Acknowledge.exceptionCode                          => Acknowledge
+      case ServerDeviceBusy.exceptionCode                     => ServerDeviceBusy
+      case MemoryParityError.exceptionCode                    => MemoryParityError
+      case GatewayPathUnavailable.exceptionCode               => GatewayPathUnavailable
+      case GatewayTargetDeviceFailedToResponse.exceptionCode  => GatewayTargetDeviceFailedToResponse
+
+      case _ => UnsupportedException(code)
+    }
+  }
 
 }
 
@@ -29,7 +45,7 @@ sealed abstract case class ExceptionCode(exceptionCode: Int) {
  * the server is in the wrong state to process a request of this type, for example because it is un-configured and is
  * being asked to return register values.
  */
-object IllegalFunction extends ExceptionCode(0x01)
+case object IllegalFunction extends ExceptionCode(0x01)
 
 /**
  * The data address received in the query is not an allowable address for the server. More specifically, the combination
@@ -40,7 +56,7 @@ object IllegalFunction extends ExceptionCode(0x01)
  * request will fail with Exception Code 0x02 “Illegal Data Address” since it attempts to operate on registers 96, 97,
  * 98, 99 and 100, and there is no register with address 100.
  */
-object IllegalDataAddress extends ExceptionCode(0x02)
+case object IllegalDataAddress extends ExceptionCode(0x02)
 
 /**
  * A value contained in the query data field is not an allowable value for server. This indicates a fault in the
@@ -48,12 +64,12 @@ object IllegalDataAddress extends ExceptionCode(0x02)
  * NOT mean that a data item submitted for storage in a register has a value outside the expectation of the application
  * program, since the MODBUS protocol is unaware of the significance of any particular value of any particular register.
  */
-object IllegalDataValue extends ExceptionCode(0x03)
+case object IllegalDataValue extends ExceptionCode(0x03)
 
 /**
  * An unrecoverable error occurred while the server was attempting to perform the requested action.
  */
-object ServerDeviceFailure extends ExceptionCode(0x04)
+case object ServerDeviceFailure extends ExceptionCode(0x04)
 
 /**
  * Specialized use in conjunction with programming commands.
@@ -69,7 +85,7 @@ object Acknowledge extends ExceptionCode(0x05)
  * The server is engaged in processing a long– duration program command. The client should retransmit the message later
  * when the server is free.
  */
-object ServerDeviceBusy extends ExceptionCode(0x06)
+case object ServerDeviceBusy extends ExceptionCode(0x06)
 
 /**
  * Specialized use in conjunction with function codes 20 and 21 and reference type 6, to indicate that the extended file
@@ -78,18 +94,21 @@ object ServerDeviceBusy extends ExceptionCode(0x06)
  * The server attempted to read record file, but detected a parity error in the memory. The client can retry the
  * request, but service may be required on the server device.
  */
-object MemoryParityError extends ExceptionCode(0x08)
+case object MemoryParityError extends ExceptionCode(0x08)
 
 /**
  * Specialized use in conjunction with gateways, indicates that the gateway was unable to allocate an internal
  * communication path from the input port to the output port for processing the request. Usually means that the gateway
  * is mis-configured or overloaded.
  */
-object GatewayPathUnavailable extends ExceptionCode(0x0A)
+case object GatewayPathUnavailable extends ExceptionCode(0x0A)
 
 /**
  * Specialized use in conjunction with gateways, indicates that no response was obtained from the target device. Usually
  * means that the device is not present on the network.
  */
-object GatewayTargetDeviceFailedToResponse extends ExceptionCode(0x0B)
+case object GatewayTargetDeviceFailedToResponse extends ExceptionCode(0x0B)
 
+
+/** A catch-all for unsupported or invalid exception codes. */
+case class UnsupportedException(code: Int) extends ExceptionCode(code)
