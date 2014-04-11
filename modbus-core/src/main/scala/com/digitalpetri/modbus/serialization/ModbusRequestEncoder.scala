@@ -65,6 +65,14 @@ class ModbusRequestEncoder extends ModbusPduEncoder {
   def encodeWriteMultipleCoils(request: WriteMultipleCoilsRequest, buffer: ByteBuf): Try[Unit] = Try {
     buffer.writeByte(request.functionCode.functionCode)
     buffer.writeShort(request.startingAddress)
+    buffer.writeShort(request.values.size)
+
+    val byteCount: Int = {
+      if (request.values.size % 8 == 0) request.values.size / 8
+      else request.values.size / 8 + 1
+    }
+
+    buffer.writeByte(byteCount)
 
     request.values.sliding(8, 8).map(bits2Int).foreach(buffer.writeByte)
   }
@@ -72,6 +80,8 @@ class ModbusRequestEncoder extends ModbusPduEncoder {
   def encodeWriteMultipleRegisters(request: WriteMultipleRegistersRequest, buffer: ByteBuf): Try[Unit] = Try {
     buffer.writeByte(request.functionCode.functionCode)
     buffer.writeShort(request.startingAddress)
+    buffer.writeShort(request.values.size)
+    buffer.writeByte(request.values.size * 2)
 
     request.values.foreach(s => buffer.writeShort(s))
   }

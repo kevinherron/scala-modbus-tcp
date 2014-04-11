@@ -145,7 +145,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
     val quantity        = buffer.readUnsignedShort()
     val byteCount       = buffer.readUnsignedByte()
 
-    assert(quantity == byteCount * 2)
+    assert(quantity == byteCount / 2)
 
     val values = for (i <- 1 to quantity) yield buffer.readShort()
 
