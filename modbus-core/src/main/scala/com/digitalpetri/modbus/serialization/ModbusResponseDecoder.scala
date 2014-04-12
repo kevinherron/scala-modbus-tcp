@@ -88,9 +88,9 @@ class ModbusResponseDecoder extends ModbusPduDecoder {
 
   def decodeWriteSingleCoil(buffer: ByteBuf) = Try {
     val coilAddress = buffer.readUnsignedShort()
-    val coilStatus  = buffer.readShort() > 0
+    val coilValue   = buffer.readUnsignedShort()
 
-    WriteSingleCoilResponse(coilAddress, coilStatus = coilStatus)
+    WriteSingleCoilResponse(coilAddress, coilStatus = coilValue == 0xFF00)
   }
 
   def decodeWriteSingleRegister(buffer: ByteBuf) = Try {
@@ -116,8 +116,8 @@ class ModbusResponseDecoder extends ModbusPduDecoder {
 
   def decodeMaskWriteRegister(buffer: ByteBuf) = Try {
     val referenceAddress  = buffer.readUnsignedShort()
-    val andMask           = buffer.readShort()
-    val orMask            = buffer.readShort()
+    val andMask           = buffer.readUnsignedShort()
+    val orMask            = buffer.readUnsignedShort()
 
     MaskWriteRegisterResponse(referenceAddress, andMask, orMask)
   }

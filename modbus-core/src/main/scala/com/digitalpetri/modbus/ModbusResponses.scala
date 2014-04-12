@@ -24,7 +24,7 @@ sealed abstract class ModbusResponse(val functionCode: FunctionCode) extends Mod
 case class ExceptionResponse(override val functionCode: FunctionCode, exceptionCode: ExceptionCode)
   extends ModbusResponse(functionCode)
 
-case class MaskWriteRegisterResponse(referenceAddress: Int, andMask: Short, orMask: Short)
+case class MaskWriteRegisterResponse(referenceAddress: Int, andMask: Int, orMask: Int)
   extends ModbusResponse(MaskWriteRegister)
 
 case class ReadCoilsResponse(coils: Seq[Boolean])
