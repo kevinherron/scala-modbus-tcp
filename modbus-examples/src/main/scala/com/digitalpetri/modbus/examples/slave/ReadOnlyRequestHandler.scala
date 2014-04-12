@@ -20,7 +20,6 @@ import com.digitalpetri.modbus._
 import com.digitalpetri.modbus.slave.ServiceRequest._
 import com.digitalpetri.modbus.slave.ServiceRequestHandler
 import com.typesafe.scalalogging.slf4j.Logging
-import scala.util.Random
 
 class ReadOnlyRequestHandler extends ServiceRequestHandler with Logging {
 
@@ -28,8 +27,9 @@ class ReadOnlyRequestHandler extends ServiceRequestHandler with Logging {
     logger.debug(s"Received ${service.request} for unitId=${service.unitId}")
 
     val request   = service.request
+    val address   = request.startAddress
     val quantity  = request.quantity
-    val registers = Seq.fill[Short](quantity)(Random.nextInt().toShort)
+    val registers = (address until address + quantity).map(_.toShort)
     val response  = ReadHoldingRegistersResponse(registers)
 
     service.sendResponse(response)
@@ -39,8 +39,9 @@ class ReadOnlyRequestHandler extends ServiceRequestHandler with Logging {
     logger.debug(s"Received ${service.request} for unitId=${service.unitId}")
 
     val request   = service.request
+    val address   = request.startAddress
     val quantity  = request.quantity
-    val registers = Seq.fill[Short](quantity)(Random.nextInt().toShort)
+    val registers = (address until address + quantity).map(_.toShort)
     val response  = ReadInputRegistersResponse(registers)
 
     service.sendResponse(response)
@@ -50,8 +51,9 @@ class ReadOnlyRequestHandler extends ServiceRequestHandler with Logging {
     logger.debug(s"Received ${service.request} for unitId=${service.unitId}")
 
     val request   = service.request
+    val address   = request.startAddress
     val quantity  = request.quantity
-    val coils     = Seq.fill[Boolean](quantity)(Random.nextBoolean())
+    val coils     = (address until address + quantity).map(i => if (i % 2 == 0) true else false)
     val response  = ReadCoilsResponse(coils)
 
     service.sendResponse(response)
@@ -61,8 +63,9 @@ class ReadOnlyRequestHandler extends ServiceRequestHandler with Logging {
     logger.debug(s"Received ${service.request} for unitId=${service.unitId}")
 
     val request   = service.request
+    val address   = request.startAddress
     val quantity  = request.quantity
-    val inputs    = Seq.fill[Boolean](quantity)(Random.nextBoolean())
+    val inputs    = (address until address + quantity).map(i => if (i % 2 == 0) true else false)
     val response  = ReadDiscreteInputsResponse(inputs)
 
     service.sendResponse(response)
