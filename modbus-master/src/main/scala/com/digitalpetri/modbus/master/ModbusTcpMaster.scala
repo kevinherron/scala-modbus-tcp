@@ -20,7 +20,6 @@ import com.codahale.metrics.{Timer, MetricRegistry}
 import com.digitalpetri.modbus.layers.TcpPayload
 import com.digitalpetri.modbus.{ModbusResponseException, ExceptionResponse, ModbusResponse, ModbusRequest}
 import io.netty.channel._
-import io.netty.util.concurrent.{Future => NettyFuture}
 import io.netty.util.{Timeout, TimerTask}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{TimeUnit, ConcurrentHashMap}
@@ -49,7 +48,8 @@ class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseH
   val channelManager  = new ModbusChannelManager(this, config)
   val transactionId   = new AtomicInteger(0)
 
-  def sendRequest(request: ModbusRequest, unitId: Short = 0): Future[ModbusResponse] = {
+
+  def sendRequest[T <: ModbusResponse](request: ModbusRequest, unitId: Short = 0): Future[T] = {
     val promise = Promise[ModbusResponse]()
 
     channelManager.getChannel match {
@@ -60,7 +60,7 @@ class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseH
       case Right(ch) => writeToChannel(ch, promise, request, unitId)
     }
 
-    promise.future
+    promise.future.transform(r => r.asInstanceOf[T], ex => ex)
   }
 
   def disconnect(): Unit = {
