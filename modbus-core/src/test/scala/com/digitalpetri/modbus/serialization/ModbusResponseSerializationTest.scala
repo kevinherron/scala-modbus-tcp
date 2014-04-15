@@ -1,13 +1,10 @@
 package com.digitalpetri.modbus.serialization
 
+import com.digitalpetri.modbus.FunctionCodes.{ReadInputRegisters, WriteSingleRegister, ReadHoldingRegisters}
 import com.digitalpetri.modbus._
 import io.netty.buffer.Unpooled
 import org.scalatest.FunSuite
 import scala.util.Failure
-import com.digitalpetri.modbus.ReadHoldingRegistersResponse
-import com.digitalpetri.modbus.ReadDiscreteInputsResponse
-import scala.util.Failure
-import com.digitalpetri.modbus.ReadCoilsResponse
 import scala.util.Success
 
 class ModbusResponseSerializationTest extends FunSuite {
@@ -83,6 +80,12 @@ class ModbusResponseSerializationTest extends FunSuite {
   test("MaskWriteRegisterResponse is round-trip encodable/decodable") {
     testRoundTrip(MaskWriteRegisterResponse(0, 0xFF00, 0x00FF))
     testRoundTrip(MaskWriteRegisterResponse(100, 0x0000, 0xFFFF))
+  }
+
+  test("ExceptionResponse is round-trip encodable/decodable") {
+    testRoundTrip(ExceptionResponse(ReadHoldingRegisters, IllegalFunction))
+    testRoundTrip(ExceptionResponse(WriteSingleRegister, IllegalDataValue))
+    testRoundTrip(ExceptionResponse(ReadInputRegisters, IllegalDataAddress))
   }
 
   private def testRoundTrip(response: ModbusResponse) {
