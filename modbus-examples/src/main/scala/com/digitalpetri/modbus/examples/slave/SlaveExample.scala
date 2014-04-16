@@ -30,7 +30,7 @@ object SlaveExample extends App with Logging {
   val config  = new ModbusTcpSlaveConfig()
   val slave   = new ModbusTcpSlave(config)
 
-  slave.setRequestHandler(new ReadOnlyRequestHandler)
+  slave.setRequestHandler(new ReadWriteRequestHandler)
 
   val host = "0.0.0.0"
   val port = 50200

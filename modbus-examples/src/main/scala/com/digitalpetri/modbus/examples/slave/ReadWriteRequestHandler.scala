@@ -20,8 +20,13 @@ import com.digitalpetri.modbus._
 import com.digitalpetri.modbus.slave.ServiceRequest._
 import com.digitalpetri.modbus.slave.ServiceRequestHandler
 import com.typesafe.scalalogging.slf4j.Logging
+import scala.collection.concurrent.TrieMap
+import scala.util.Random
 
-class ReadOnlyRequestHandler extends ServiceRequestHandler with Logging {
+class ReadWriteRequestHandler extends ServiceRequestHandler with Logging {
+
+  val registerMap = new TrieMap[Int, Int]()
+  val coilMap = new TrieMap[Int, Boolean]()
 
   def onReadHoldingRegisters(service: ReadHoldingRegistersService): Unit = {
     logger.debug(s"Received ${service.request} for unitId=${service.unitId}")
@@ -29,10 +34,12 @@ class ReadOnlyRequestHandler extends ServiceRequestHandler with Logging {
     val request   = service.request
     val address   = request.startAddress
     val quantity  = request.quantity
-    val registers = (address until address + quantity).map(_.toShort)
-    val response  = ReadHoldingRegistersResponse(registers)
+    val registers = (address until address + quantity).map {
+      case i if i < 1024  => registerMap.getOrElseUpdate(i, i)
+      case _              => Random.nextInt()
+    }.map(_.toShort)
 
-    service.sendResponse(response)
+    service.sendResponse(ReadHoldingRegistersResponse(registers))
   }
 
   def onReadInputRegisters(service: ReadInputRegistersService): Unit = {
@@ -42,9 +49,8 @@ class ReadOnlyRequestHandler extends ServiceRequestHandler with Logging {
     val address   = request.startAddress
     val quantity  = request.quantity
     val registers = (address until address + quantity).map(_.toShort)
-    val response  = ReadInputRegistersResponse(registers)
 
-    service.sendResponse(response)
+    service.sendResponse(ReadInputRegistersResponse(registers))
   }
 
   def onReadCoils(service: ReadCoilsService): Unit = {
@@ -53,10 +59,12 @@ class ReadOnlyRequestHandler extends ServiceRequestHandler with Logging {
     val request   = service.request
     val address   = request.startAddress
     val quantity  = request.quantity
-    val coils     = (address until address + quantity).map(i => if (i % 2 == 0) true else false)
-    val response  = ReadCoilsResponse(coils)
+    val coils     = (address until address + quantity).map {
+      case i if i < 1024  => coilMap.getOrElseUpdate(i, if (i % 2 == 0) true else false)
+      case _              => Random.nextBoolean()
+    }
 
-    service.sendResponse(response)
+    service.sendResponse(ReadCoilsResponse(coils))
   }
 
   def onReadDiscreteInputs(service: ReadDiscreteInputsService): Unit = {
@@ -66,29 +74,57 @@ class ReadOnlyRequestHandler extends ServiceRequestHandler with Logging {
     val address   = request.startAddress
     val quantity  = request.quantity
     val inputs    = (address until address + quantity).map(i => if (i % 2 == 0) true else false)
-    val response  = ReadDiscreteInputsResponse(inputs)
 
-    service.sendResponse(response)
+    service.sendResponse(ReadDiscreteInputsResponse(inputs))
+  }
+
+
+  def onWriteSingleRegister(service: WriteSingleRegisterService): Unit = {
+    val request = service.request
+    val address = request.registerAddress
+    val value   = request.registerValue
+
+    registerMap += (address -> value)
+
+    service.sendResponse(WriteSingleRegisterResponse(address, value.toShort))
+  }
+
+  def onWriteMultipleRegisters(service: WriteMultipleRegistersService): Unit = {
+    val request = service.request
+    val address = request.startingAddress
+    val values  = request.values
+
+    (address until address + values.length).zip(values).foreach {
+      case (a, v) => registerMap += (a -> v)
+    }
+
+    service.sendResponse(WriteMultipleRegistersResponse(address, values.length))
+  }
+
+  def onWriteSingleCoil(service: WriteSingleCoilService): Unit = {
+    val request = service.request
+    val address = request.coilAddress
+    val status  = request.coilStatus
+
+    coilMap += (address -> status)
+
+    service.sendResponse(WriteSingleCoilResponse(address, status))
+  }
+
+  def onWriteMultipleCoils(service: WriteMultipleCoilsService): Unit = {
+    val request = service.request
+    val address = request.startingAddress
+    val values  = request.values
+
+    (address until address + values.length).zip(values).foreach {
+      case (a, v) => coilMap += (a -> v)
+    }
+
+    service.sendResponse(WriteMultipleCoilsResponse(address, values.length))
   }
 
   def onMaskWriteRegister(service: MaskWriteRegisterService): Unit = {
     service.sendException(IllegalFunction)
   }
 
-  def onWriteMultipleRegisters(service: WriteMultipleRegistersService): Unit = {
-    service.sendException(IllegalFunction)
-  }
-
-  def onWriteMultipleCoils(service: WriteMultipleCoilsService): Unit = {
-    service.sendException(IllegalFunction)
-  }
-
-  def onWriteSingleRegister(service: WriteSingleRegisterService): Unit = {
-    service.sendException(IllegalFunction)
-  }
-
-  def onWriteSingleCoil(service: WriteSingleCoilService): Unit = {
-    service.sendException(IllegalFunction)
-  }
-  
 }
