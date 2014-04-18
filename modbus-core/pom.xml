@@ -28,7 +28,6 @@
 
     <artifactId>modbus-core</artifactId>
 
-
     <dependencies>
         <dependency>
             <groupId>io.netty</groupId>
@@ -68,7 +67,7 @@
 
         <dependency>
             <groupId>com.typesafe</groupId>
-            <artifactId>scalalogging-slf4j_2.10</artifactId>
+            <artifactId>scalalogging-slf4j_${scalabinary.version}</artifactId>
             <version>${scalalogging.version}</version>
         </dependency>
     </dependencies>
