@@ -14,7 +14,7 @@ class ModbusResponseSerializationTest extends FunSuite {
 
   test("ReadCoilsResponse is round-trip encodable/decodable") {
     /*
-     * ReadCoilResponses always get padded with false/0-bits if the requested coil count was not a multiple of 8, so
+     * Responses always get padded with false/0-bits if the requested coil count was not a multiple of 8, so
      * pad to a multiple of 8 every time for the sake of testing equality.
      */
 
@@ -27,6 +27,11 @@ class ModbusResponseSerializationTest extends FunSuite {
   }
 
   test("ReadDiscreteInputsResponse is round-trip encodable/decodable") {
+    /*
+     * Responses always get padded with false/0-bits if the requested coil count was not a multiple of 8, so
+     * pad to a multiple of 8 every time for the sake of testing equality.
+     */
+
     testRoundTrip(ReadDiscreteInputsResponse(Seq(true, false, false, false, false, false ,false, false)))
     testRoundTrip(ReadDiscreteInputsResponse(Seq(false, false, false, false, false, false, false, false)))
     testRoundTrip(ReadDiscreteInputsResponse(Seq(true, true, false, false, false, false, false, false)))
