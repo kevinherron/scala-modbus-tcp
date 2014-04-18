@@ -30,7 +30,7 @@ object MasterExample extends App with Logging {
   val master = new ModbusTcpMaster(config)
 
   val request = ReadHoldingRegistersRequest(startAddress = 0, quantity = 10)
-  val response: Future[ReadHoldingRegistersResponse] = master.sendRequest(request)
+  val response = master.sendRequest[ReadHoldingRegistersResponse](request)
 
   response.onComplete {
     case Success(r) => logger.info(s"Received response: $r")

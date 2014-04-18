@@ -7,7 +7,7 @@ Quick Start
   val master = new ModbusTcpMaster(config)
 
   val request = ReadHoldingRegistersRequest(startAddress = 0, quantity = 10)
-  val response: Future[ReadHoldingRegistersResponse] = master.sendRequest(request)
+  val response = master.sendRequest[ReadHoldingRegistersResponse](request)
   ```
   
   See the examples project for more.
