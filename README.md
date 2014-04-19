@@ -8,6 +8,11 @@ Quick Start
 
   val request = ReadHoldingRegistersRequest(startAddress = 0, quantity = 10)
   val response = master.sendRequest[ReadHoldingRegistersResponse](request)
+  
+  response.onComplete {
+    case Success(r) => println(s"Received response: $r")
+    case Failure(t) => println(s"Error reading holding registers: ${t.getMessage}")
+  }
   ```
   
   See the examples project for more.
