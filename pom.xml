@@ -25,6 +25,30 @@
     <packaging>pom</packaging>
     <version>0.1.0-SNAPSHOT</version>
 
+    <name>Modbus TCP Master/Slave</name>
+    <description>Async/non-blocking Modbus TCP master and slave implementation.</description>
+    <url>https://github.com/digitalpetri/modbus-tcp</url>
+
+    <scm>
+        <url>https://github.com/digitalpetri/modbus-tcp</url>
+        <connection>scm:git:git://github.com/digitalpetri/modbus-tcp.git</connection>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Kevin Herron</name>
+            <email>kevinherron@gmail.com</email>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <modules>
         <module>modbus-core</module>
         <module>modbus-examples</module>
@@ -64,19 +88,6 @@
         <scalatest.version>2.1.3</scalatest.version>
         <slf4j.version>1.7.5</slf4j.version>
     </properties>
-
-    <scm>
-        <url>https://github.com/digitalpetri/modbus-tcp</url>
-        <connection>scm:git:git://github.com/digitalpetri/modbus-tcp.git</connection>
-    </scm>
-
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
 
     <dependencies>
         <dependency>
