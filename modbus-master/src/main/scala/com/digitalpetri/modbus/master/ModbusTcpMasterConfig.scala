@@ -27,9 +27,9 @@ import scala.concurrent.duration.{FiniteDuration, Duration}
 case class ModbusTcpMasterConfig(host: String,
                                  port: Int = 502,
                                  timeout: Duration = FiniteDuration(5, TimeUnit.SECONDS),
+                                 instanceId: Option[String] = None,
                                  executor: Executor = Modbus.SharedThreadPool,
                                  eventLoop: EventLoopGroup = Modbus.SharedEventLoop,
                                  wheelTimer: HashedWheelTimer = Modbus.SharedWheelTimer,
-                                 metricRegistry: MetricRegistry = Modbus.SharedMetricRegistry,
-                                 instanceId: Option[String] = None)
+                                 metricRegistry: MetricRegistry = Modbus.SharedMetricRegistry)
 
