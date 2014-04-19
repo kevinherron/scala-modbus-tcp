@@ -19,10 +19,12 @@ package com.digitalpetri.modbus
 import com.codahale.metrics.MetricRegistry
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.util.HashedWheelTimer
+import java.util.concurrent.Executors
 
 object Modbus {
 
   lazy val SharedEventLoop = new NioEventLoopGroup()
+  lazy val SharedThreadPool = Executors.newCachedThreadPool()
   lazy val SharedWheelTimer = new HashedWheelTimer()
   lazy val SharedMetricRegistry = new MetricRegistry()
 

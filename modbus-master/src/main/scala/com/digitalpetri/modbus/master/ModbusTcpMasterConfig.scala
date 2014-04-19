@@ -20,14 +20,14 @@ import com.codahale.metrics.MetricRegistry
 import com.digitalpetri.modbus.Modbus
 import io.netty.channel.EventLoopGroup
 import io.netty.util.HashedWheelTimer
-import java.util.concurrent.{Executors, Executor, TimeUnit}
+import java.util.concurrent.{Executor, TimeUnit}
 import scala.concurrent.duration.{FiniteDuration, Duration}
 
 
 case class ModbusTcpMasterConfig(host: String,
                                  port: Int = 502,
                                  timeout: Duration = FiniteDuration(5, TimeUnit.SECONDS),
-                                 executor: Executor = Executors.newCachedThreadPool(),
+                                 executor: Executor = Modbus.SharedThreadPool,
                                  eventLoop: EventLoopGroup = Modbus.SharedEventLoop,
                                  wheelTimer: HashedWheelTimer = Modbus.SharedWheelTimer,
                                  metricRegistry: MetricRegistry = Modbus.SharedMetricRegistry,
