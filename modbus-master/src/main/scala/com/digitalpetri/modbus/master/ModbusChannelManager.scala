@@ -24,11 +24,11 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.handler.logging.{LogLevel, LoggingHandler}
 import scala.Some
-import scala.concurrent.Promise
+import scala.concurrent.{ExecutionContext, Promise}
 
 class ModbusChannelManager(master: ModbusTcpMaster, config: ModbusTcpMasterConfig) extends AbstractChannelManager {
 
-  implicit val executionContext = config.executionContext
+  protected implicit val executionContext = ExecutionContext.fromExecutor(config.executor)
 
   def connect(channelPromise: Promise[Channel]): Unit = {
     val bootstrap = new Bootstrap
@@ -44,7 +44,7 @@ class ModbusChannelManager(master: ModbusTcpMaster, config: ModbusTcpMasterConfi
         channel.pipeline.addLast(new ModbusTcpEncoder(new ModbusRequestEncoder))
         channel.pipeline.addLast(new ModbusTcpDecoder(new ModbusResponseDecoder, config.metricRegistry))
         channel.pipeline.addLast(new LoggingHandler(loggerName("MessageLogger"), LogLevel.TRACE))
-        channel.pipeline.addLast(new ModbusTcpResponseDispatcher(master, config.executionContext))
+        channel.pipeline.addLast(new ModbusTcpResponseDispatcher(master, executionContext))
       }
     }
 

@@ -25,28 +25,28 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{TimeUnit, ConcurrentHashMap}
 import org.slf4j.LoggerFactory
 import scala.Some
-import scala.concurrent.{Promise, Future}
+import scala.concurrent.{ExecutionContext, Promise, Future}
 import scala.util.{Failure, Success}
 
 
 class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseHandler {
 
-  implicit val executionContext = config.executionContext
+  private implicit val executionContext = ExecutionContext.fromExecutor(config.executor)
 
-  val logger = config.instanceId match {
+  private val logger = config.instanceId match {
     case Some(instanceId) => LoggerFactory.getLogger(s"${getClass.getName}.$instanceId")
     case None => LoggerFactory.getLogger(getClass)
   }
 
-  val requestCount      = config.metricRegistry.counter(metricName("request-count"))
-  val responseCount     = config.metricRegistry.counter(metricName("response-count"))
-  val lateResponseCount = config.metricRegistry.counter(metricName("late-response-count"))
-  val timeoutCount      = config.metricRegistry.counter(metricName("timeout-count"))
-  val responseTime      = config.metricRegistry.timer(metricName("response-time"))
+  private val requestCount      = config.metricRegistry.counter(metricName("request-count"))
+  private val responseCount     = config.metricRegistry.counter(metricName("response-count"))
+  private val lateResponseCount = config.metricRegistry.counter(metricName("late-response-count"))
+  private val timeoutCount      = config.metricRegistry.counter(metricName("timeout-count"))
+  private val responseTime      = config.metricRegistry.timer(metricName("response-time"))
 
-  val promises        = new ConcurrentHashMap[Short, (Promise[ModbusResponse], Timeout, Timer.Context)]()
-  val channelManager  = new ModbusChannelManager(this, config)
-  val transactionId   = new AtomicInteger(0)
+  private val promises        = new ConcurrentHashMap[Short, (Promise[ModbusResponse], Timeout, Timer.Context)]()
+  private val channelManager  = new ModbusChannelManager(this, config)
+  private val transactionId   = new AtomicInteger(0)
 
 
   def sendRequest[T <: ModbusResponse](request: ModbusRequest, unitId: Short = 0): Future[T] = {

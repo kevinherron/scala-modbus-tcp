@@ -29,8 +29,8 @@ import scala.util.Success
 
 class ModbusTcpDecoder(decoder: ModbusPduDecoder, metrics: MetricRegistry) extends ByteToMessageDecoder with Logging {
 
-  val decodingErrorCounter  = metrics.counter(MetricRegistry.name(getClass, "decoding-error-count"))
-  val unsupportedPduCounter = metrics.counter(MetricRegistry.name(getClass, "unsupported-pdu-count"))
+  private val decodingErrorCounter  = metrics.counter(MetricRegistry.name(getClass, "decoding-error-count"))
+  private val unsupportedPduCounter = metrics.counter(MetricRegistry.name(getClass, "unsupported-pdu-count"))
 
   def decode(ctx: ChannelHandlerContext, in: ByteBuf, out: util.List[Object]): Unit = {
     var startIndex = in.readerIndex()

@@ -77,7 +77,7 @@ abstract class AbstractChannelManager {
   /**
    * ExecutionContext to run completion callbacks on.
    */
-  implicit val executionContext: ExecutionContext
+  protected implicit val executionContext: ExecutionContext
 
   def getStatus: String = state.get match {
     case s@Idle           => "Idle"

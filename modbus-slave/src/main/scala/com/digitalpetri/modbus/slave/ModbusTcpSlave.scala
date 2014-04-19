@@ -33,15 +33,15 @@ import scala.concurrent.{Future, Promise}
 
 class ModbusTcpSlave(config: ModbusTcpSlaveConfig) {
 
-  val log = config.instanceId match {
+  private val logger = config.instanceId match {
     case Some(instanceId) => LoggerFactory.getLogger(s"${getClass.getName}.$instanceId")
     case None => LoggerFactory.getLogger(getClass)
   }
 
-  val channelCount = config.metricRegistry.counter(metricName("channel-count"))
+  private val channelCount = config.metricRegistry.counter(metricName("channel-count"))
 
-  val serverChannels = new TrieMap[SocketAddress, Channel]()
-  val requestHandler = new AtomicReference[ServiceRequestHandler](IllegalFunctionHandler)
+  private val serverChannels = new TrieMap[SocketAddress, Channel]()
+  private val requestHandler = new AtomicReference[ServiceRequestHandler](IllegalFunctionHandler)
 
   def bind(host: String, port: Int): Future[SocketAddress] = {
     val bootstrap = new ServerBootstrap
@@ -54,7 +54,7 @@ class ModbusTcpSlave(config: ModbusTcpSlaveConfig) {
         channel.pipeline.addLast(new ModbusTcpServiceDispatcher(new ServiceHandler, config.executionContext))
 
         channelCount.inc()
-        log.info(s"channel initialized: $channel")
+        logger.info(s"channel initialized: $channel")
 
         channel.closeFuture().addListener(new ChannelFutureListener {
           def operationComplete(future: ChannelFuture): Unit = channelCount.dec()

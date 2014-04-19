@@ -26,7 +26,7 @@ import scala.util.{Failure, Success, Try}
 class ModbusTcpResponseDispatcher(responseHandler: TcpServiceResponseHandler,
                                   executionContext: ExecutionContext) extends SimpleChannelInboundHandler[TcpPayload] {
 
-  val logger = LoggerFactory.getLogger(getClass)
+  private val logger = LoggerFactory.getLogger(getClass)
 
   def channelRead0(ctx: ChannelHandlerContext, payload: TcpPayload): Unit = {
     val funcTry = for {
