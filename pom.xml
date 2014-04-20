@@ -21,9 +21,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.digitalpetri.modbus</groupId>
-    <artifactId>modbus-parent</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>modbus-parent_${scalabinary.version}</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
     <name>Modbus TCP Master/Slave</name>
     <description>Async/non-blocking Modbus TCP master and slave implementation.</description>
