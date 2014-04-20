@@ -31,7 +31,8 @@
 
     <scm>
         <url>https://github.com/digitalpetri/modbus-tcp</url>
-        <connection>scm:git:git://github.com/digitalpetri/modbus-tcp.git</connection>
+        <connection>scm:git:git@github.com/digitalpetri/modbus-tcp.git</connection>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
