@@ -22,7 +22,7 @@
 
     <parent>
         <groupId>com.digitalpetri.modbus</groupId>
-        <artifactId>modbus-parent_${scalabinary.version}</artifactId>
+        <artifactId>modbus-parent</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
@@ -31,12 +31,12 @@
     <dependencies>
         <dependency>
             <groupId>com.digitalpetri.modbus</groupId>
-            <artifactId>modbus-master</artifactId>
+            <artifactId>modbus-master_${scalabinary.version}</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.digitalpetri.modbus</groupId>
-            <artifactId>modbus-slave</artifactId>
+            <artifactId>modbus-slave_${scalabinary.version}</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
