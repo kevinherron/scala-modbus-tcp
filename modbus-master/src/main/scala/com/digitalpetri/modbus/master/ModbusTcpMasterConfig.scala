@@ -16,7 +16,6 @@
 
 package com.digitalpetri.modbus.master
 
-import com.codahale.metrics.MetricRegistry
 import com.digitalpetri.modbus.Modbus
 import io.netty.channel.EventLoopGroup
 import io.netty.util.HashedWheelTimer
@@ -30,6 +29,5 @@ case class ModbusTcpMasterConfig(host: String,
                                  instanceId: Option[String] = None,
                                  executor: Executor = Modbus.SharedThreadPool,
                                  eventLoop: EventLoopGroup = Modbus.SharedEventLoop,
-                                 wheelTimer: HashedWheelTimer = Modbus.SharedWheelTimer,
-                                 metricRegistry: MetricRegistry = Modbus.SharedMetricRegistry)
+                                 wheelTimer: HashedWheelTimer = Modbus.SharedWheelTimer)
 

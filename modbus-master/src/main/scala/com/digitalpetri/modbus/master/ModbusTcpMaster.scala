@@ -16,17 +16,20 @@
 
 package com.digitalpetri.modbus.master
 
-import com.codahale.metrics.{Timer, MetricRegistry}
+import com.codahale.metrics._
+import com.digitalpetri.modbus.ExceptionResponse
 import com.digitalpetri.modbus.layers.TcpPayload
-import com.digitalpetri.modbus.{ModbusResponseException, ExceptionResponse, ModbusResponse, ModbusRequest}
+import com.digitalpetri.modbus.{ModbusResponseException, ModbusResponse, ModbusRequest}
 import io.netty.channel._
 import io.netty.util.{Timeout, TimerTask}
+import java.util
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{TimeUnit, ConcurrentHashMap}
 import org.slf4j.LoggerFactory
 import scala.Some
 import scala.concurrent.{ExecutionContext, Promise, Future}
-import scala.util.{Failure, Success}
+import scala.util.Failure
+import scala.util.Success
 
 
 class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseHandler {
@@ -38,16 +41,27 @@ class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseH
     case None => LoggerFactory.getLogger(getClass)
   }
 
-  private val requestCount      = config.metricRegistry.counter(metricName("request-count"))
-  private val responseCount     = config.metricRegistry.counter(metricName("response-count"))
-  private val lateResponseCount = config.metricRegistry.counter(metricName("late-response-count"))
-  private val timeoutCount      = config.metricRegistry.counter(metricName("timeout-count"))
-  private val responseTime      = config.metricRegistry.timer(metricName("response-time"))
+  private[master] val decodingErrorCount  = new Counter()
+  private[master] val unsupportedPduCount = new Counter()
+
+  private val requestCount      = new Counter()
+  private val responseCount     = new Counter()
+  private val lateResponseCount = new Counter()
+  private val timeoutCount      = new Counter()
+  private val responseTime      = new Timer()
+
+  private val metrics = Map[String, Metric](
+    metricName("request-count")         -> requestCount,
+    metricName("response-count")        -> responseCount,
+    metricName("late-response-count")   -> lateResponseCount,
+    metricName("timeout-count")         -> timeoutCount,
+    metricName("response-time")         -> responseTime,
+    metricName("decoding-error-count")  -> decodingErrorCount,
+    metricName("unsupported-pdu-count") -> unsupportedPduCount)
 
   private val promises        = new ConcurrentHashMap[Short, (Promise[ModbusResponse], Timeout, Timer.Context)]()
   private val channelManager  = new ModbusChannelManager(this, config)
   private val transactionId   = new AtomicInteger(0)
-
 
   def sendRequest[T <: ModbusResponse](request: ModbusRequest, unitId: Short = 0): Future[T] = {
     val promise = Promise[ModbusResponse]()
@@ -105,8 +119,16 @@ class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseH
     }
   }
 
-  private def metricName(name: String) =
+  def getMetricSet: MetricSet = new MetricSet {
+
+    import scala.collection.JavaConversions._
+
+    def getMetrics: util.Map[String, Metric] = metrics
+  }
+
+  private def metricName(name: String) = {
     MetricRegistry.name(classOf[ModbusTcpMaster], config.instanceId.getOrElse(""), name)
+  }
 
   private class TimeoutTask(txId: Short) extends TimerTask {
     def run(timeout: Timeout): Unit = {

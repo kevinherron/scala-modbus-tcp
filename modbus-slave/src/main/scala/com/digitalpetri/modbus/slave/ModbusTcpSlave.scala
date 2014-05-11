@@ -16,7 +16,7 @@
 
 package com.digitalpetri.modbus.slave
 
-import com.codahale.metrics.MetricRegistry
+import com.codahale.metrics.{MetricSet, Metric, Counter, MetricRegistry}
 import com.digitalpetri.modbus.layers.{ModbusTcpEncoder, ModbusTcpDecoder}
 import com.digitalpetri.modbus.serialization.{ModbusResponseEncoder, ModbusRequestDecoder}
 import com.digitalpetri.modbus.slave.ServiceRequest._
@@ -26,6 +26,7 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.logging.{LogLevel, LoggingHandler}
 import java.net.SocketAddress
+import java.util
 import java.util.concurrent.atomic.AtomicReference
 import org.slf4j.LoggerFactory
 import scala.collection.concurrent.TrieMap
@@ -38,7 +39,14 @@ class ModbusTcpSlave(config: ModbusTcpSlaveConfig) {
     case None => LoggerFactory.getLogger(getClass)
   }
 
-  private val channelCount = config.metricRegistry.counter(metricName("channel-count"))
+  private val decodingErrorCount  = new Counter()
+  private val unsupportedPduCount = new Counter()
+  private val channelCount        = new Counter()
+
+  private val metrics = Map[String, Metric](
+    metricName("decoding-error-count")  -> decodingErrorCount,
+    metricName("unsupported-pdu-count") -> unsupportedPduCount,
+    metricName("channel-count")         -> channelCount)
 
   private val serverChannels = new TrieMap[SocketAddress, Channel]()
   private val requestHandler = new AtomicReference[ServiceRequestHandler](IllegalFunctionHandler)
@@ -49,7 +57,7 @@ class ModbusTcpSlave(config: ModbusTcpSlaveConfig) {
     val initializer = new ChannelInitializer[SocketChannel] {
       def initChannel(channel: SocketChannel) {
         channel.pipeline.addLast(new LoggingHandler(LogLevel.TRACE))
-        channel.pipeline.addLast(new ModbusTcpDecoder(new ModbusRequestDecoder, config.metricRegistry))
+        channel.pipeline.addLast(new ModbusTcpDecoder(new ModbusRequestDecoder, config.instanceId, decodingErrorCount, unsupportedPduCount))
         channel.pipeline.addLast(new ModbusTcpEncoder(new ModbusResponseEncoder))
         channel.pipeline.addLast(new ModbusTcpServiceDispatcher(new ServiceHandler, config.executionContext))
 
@@ -86,6 +94,13 @@ class ModbusTcpSlave(config: ModbusTcpSlaveConfig) {
 
   def setRequestHandler(requestHandler: ServiceRequestHandler) {
     this.requestHandler.set(requestHandler)
+  }
+
+  def getMetricSet: MetricSet = new MetricSet {
+
+    import scala.collection.JavaConversions._
+
+    def getMetrics: util.Map[String, Metric] = metrics
   }
 
   def shutdown() {

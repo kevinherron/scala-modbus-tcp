@@ -16,7 +16,7 @@
 
 package com.digitalpetri.modbus.layers
 
-import com.codahale.metrics.MetricRegistry
+import com.codahale.metrics.Counter
 import com.digitalpetri.modbus._
 import com.digitalpetri.modbus.serialization.ModbusPduDecoder
 import com.typesafe.scalalogging.slf4j.Logging
@@ -27,10 +27,10 @@ import java.util
 import scala.util.Failure
 import scala.util.Success
 
-class ModbusTcpDecoder(decoder: ModbusPduDecoder, metrics: MetricRegistry) extends ByteToMessageDecoder with Logging {
-
-  private val decodingErrorCounter  = metrics.counter(MetricRegistry.name(getClass, "decoding-error-count"))
-  private val unsupportedPduCounter = metrics.counter(MetricRegistry.name(getClass, "unsupported-pdu-count"))
+class ModbusTcpDecoder(decoder: ModbusPduDecoder,
+                       instanceId: Option[String],
+                       decodingErrorCount: Counter,
+                       unsupportedPduCount: Counter) extends ByteToMessageDecoder with Logging {
 
   def decode(ctx: ChannelHandlerContext, in: ByteBuf, out: util.List[Object]): Unit = {
     var startIndex = in.readerIndex()
@@ -54,7 +54,7 @@ class ModbusTcpDecoder(decoder: ModbusPduDecoder, metrics: MetricRegistry) exten
              * encoder/decoder implemented for it yet!
              */
             case UnsupportedPdu(functionCode) =>
-              unsupportedPduCounter.inc()
+              unsupportedPduCount.inc()
 
               val response = ExceptionResponse(functionCode, IllegalFunction)
               ctx.channel().writeAndFlush(TcpPayload(payload.transactionId, payload.unitId, response))
@@ -71,7 +71,7 @@ class ModbusTcpDecoder(decoder: ModbusPduDecoder, metrics: MetricRegistry) exten
 
         case Failure(ex) =>
           logger.debug(s"Could not decode header and pdu: ${ex.getMessage}")
-          decodingErrorCounter.inc()
+          decodingErrorCount.inc()
 
           // Advance past any bytes we should have read but didn't...
           val endIndex = startIndex + getLength(in, startIndex) + 6

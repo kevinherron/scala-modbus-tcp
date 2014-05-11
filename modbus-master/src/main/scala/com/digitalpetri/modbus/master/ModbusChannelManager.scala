@@ -42,7 +42,7 @@ class ModbusChannelManager(master: ModbusTcpMaster, config: ModbusTcpMasterConfi
 
         channel.pipeline.addLast(new LoggingHandler(loggerName("ByteLogger"), LogLevel.TRACE))
         channel.pipeline.addLast(new ModbusTcpEncoder(new ModbusRequestEncoder))
-        channel.pipeline.addLast(new ModbusTcpDecoder(new ModbusResponseDecoder, config.metricRegistry))
+        channel.pipeline.addLast(new ModbusTcpDecoder(new ModbusResponseDecoder, config.instanceId, master.decodingErrorCount, master.unsupportedPduCount))
         channel.pipeline.addLast(new LoggingHandler(loggerName("MessageLogger"), LogLevel.TRACE))
         channel.pipeline.addLast(new ModbusTcpResponseDispatcher(master, executionContext))
       }
