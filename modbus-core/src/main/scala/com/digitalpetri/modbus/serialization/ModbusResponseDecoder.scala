@@ -132,10 +132,17 @@ class ModbusResponseDecoder extends ModbusPduDecoder {
     UnsupportedPdu(UnsupportedFunction(code))
   }
 
-  private def byte2Bools(b: Byte) =
-    (0 to 7) map isBitSet(b)
-
-  private def isBitSet(byte: Byte)(bit: Int) =
-    ((byte >> bit) & 1) == 1
+  private def byte2Bools(b: Byte) = {
+    val bools = new Array[Boolean](8)
+    bools(0) = (b & 0x01) != 0
+    bools(1) = (b & 0x02) != 0
+    bools(2) = (b & 0x04) != 0
+    bools(3) = (b & 0x08) != 0
+    bools(4) = (b & 0x10) != 0
+    bools(5) = (b & 0x20) != 0
+    bools(6) = (b & 0x40) != 0
+    bools(7) = (b & 0x80) != 0
+    bools
+  }
 
 }
