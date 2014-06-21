@@ -19,11 +19,11 @@ package com.digitalpetri.modbus.examples.slave
 import com.digitalpetri.modbus._
 import com.digitalpetri.modbus.slave.ServiceRequest._
 import com.digitalpetri.modbus.slave.ServiceRequestHandler
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import scala.collection.concurrent.TrieMap
 import scala.util.Random
 
-class ReadWriteRequestHandler extends ServiceRequestHandler with Logging {
+class ReadWriteRequestHandler extends ServiceRequestHandler with StrictLogging {
 
   val registerMap = new TrieMap[Int, Int]()
   val coilMap = new TrieMap[Int, Boolean]()

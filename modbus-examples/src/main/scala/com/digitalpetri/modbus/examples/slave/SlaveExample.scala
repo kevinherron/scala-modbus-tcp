@@ -18,12 +18,12 @@ package com.digitalpetri.modbus.examples.slave
 
 import com.digitalpetri.modbus.Modbus
 import com.digitalpetri.modbus.slave.{ModbusTcpSlaveConfig, ModbusTcpSlave}
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import scala.concurrent.ExecutionContext
 import scala.util.Failure
 import scala.util.Success
 
-object SlaveExample extends App with Logging {
+object SlaveExample extends App with StrictLogging {
 
   implicit val ec = ExecutionContext.global
 

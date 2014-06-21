@@ -17,13 +17,14 @@
 package com.digitalpetri.modbus.master
 
 import com.digitalpetri.modbus.layers.{ModbusTcpDecoder, ModbusTcpEncoder}
-import com.digitalpetri.modbus.serialization.{ModbusResponseDecoder, ModbusRequestEncoder}
+import com.digitalpetri.modbus.serialization.{ModbusRequestEncoder, ModbusResponseDecoder}
 import io.netty.bootstrap.Bootstrap
+import io.netty.buffer.PooledByteBufAllocator
 import io.netty.channel._
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.handler.logging.{LogLevel, LoggingHandler}
-import scala.Some
+
 import scala.concurrent.{ExecutionContext, Promise}
 
 class ModbusChannelManager(master: ModbusTcpMaster, config: ModbusTcpMasterConfig) extends AbstractChannelManager {
@@ -51,8 +52,8 @@ class ModbusChannelManager(master: ModbusTcpMaster, config: ModbusTcpMasterConfi
     bootstrap.group(config.eventLoop)
       .channel(classOf[NioSocketChannel])
       .handler(initializer)
-
-    bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Int.box(config.timeout.toMillis.toInt))
+      .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Int.box(config.timeout.toMillis.toInt))
+      .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
 
     bootstrap.connect(config.host, config.port).addListener(new ChannelFutureListener {
       def operationComplete(future: ChannelFuture): Unit = {

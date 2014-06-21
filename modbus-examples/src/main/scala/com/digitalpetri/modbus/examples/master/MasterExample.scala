@@ -18,11 +18,11 @@ package com.digitalpetri.modbus.examples.master
 
 import com.digitalpetri.modbus.master.{ModbusTcpMasterConfig, ModbusTcpMaster}
 import com.digitalpetri.modbus.{Modbus, ReadHoldingRegistersResponse, ReadHoldingRegistersRequest}
-import com.typesafe.scalalogging.slf4j.Logging
-import scala.concurrent.{Future, ExecutionContext}
+import com.typesafe.scalalogging.slf4j.StrictLogging
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-object MasterExample extends App with Logging {
+object MasterExample extends App with StrictLogging {
 
   implicit val ec = ExecutionContext.global
 

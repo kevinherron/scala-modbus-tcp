@@ -16,19 +16,22 @@
 
 package com.digitalpetri.modbus.slave
 
-import com.codahale.metrics.{MetricSet, Metric, Counter, MetricRegistry}
-import com.digitalpetri.modbus.layers.{ModbusTcpEncoder, ModbusTcpDecoder}
-import com.digitalpetri.modbus.serialization.{ModbusResponseEncoder, ModbusRequestDecoder}
+import java.net.SocketAddress
+import java.util
+import java.util.concurrent.atomic.AtomicReference
+
+import com.codahale.metrics.{Counter, Metric, MetricRegistry, MetricSet}
+import com.digitalpetri.modbus.layers.{ModbusTcpDecoder, ModbusTcpEncoder}
+import com.digitalpetri.modbus.serialization.{ModbusRequestDecoder, ModbusResponseEncoder}
 import com.digitalpetri.modbus.slave.ServiceRequest._
 import io.netty.bootstrap.ServerBootstrap
+import io.netty.buffer.PooledByteBufAllocator
 import io.netty.channel._
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.logging.{LogLevel, LoggingHandler}
-import java.net.SocketAddress
-import java.util
-import java.util.concurrent.atomic.AtomicReference
 import org.slf4j.LoggerFactory
+
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.{Future, Promise}
 
@@ -74,6 +77,7 @@ class ModbusTcpSlave(config: ModbusTcpSlaveConfig) {
       .channel(classOf[NioServerSocketChannel])
       .handler(new LoggingHandler(LogLevel.DEBUG))
       .childHandler(initializer)
+      .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
 
     val bindPromise = Promise[SocketAddress]()
 

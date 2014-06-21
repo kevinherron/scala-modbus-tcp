@@ -19,7 +19,7 @@ package com.digitalpetri.modbus.layers
 import com.codahale.metrics.Counter
 import com.digitalpetri.modbus._
 import com.digitalpetri.modbus.serialization.ModbusPduDecoder
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageDecoder
@@ -30,7 +30,7 @@ import scala.util.Success
 class ModbusTcpDecoder(decoder: ModbusPduDecoder,
                        instanceId: Option[String],
                        decodingErrorCount: Counter,
-                       unsupportedPduCount: Counter) extends ByteToMessageDecoder with Logging {
+                       unsupportedPduCount: Counter) extends ByteToMessageDecoder with StrictLogging {
 
   def decode(ctx: ChannelHandlerContext, in: ByteBuf, out: util.List[Object]): Unit = {
     var startIndex = in.readerIndex()

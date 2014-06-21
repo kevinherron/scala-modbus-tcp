@@ -19,13 +19,13 @@ package com.digitalpetri.modbus.slave
 import com.digitalpetri.modbus._
 import com.digitalpetri.modbus.layers.TcpPayload
 import com.digitalpetri.modbus.slave.ServiceRequest._
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.netty.channel.{SimpleChannelInboundHandler, ChannelHandlerContext}
 import scala.concurrent.ExecutionContext
 import scala.util.{Success, Failure, Try}
 
 class ModbusTcpServiceDispatcher(serviceHandler: ServiceRequestHandler,
-                                 executionContext: ExecutionContext) extends SimpleChannelInboundHandler[TcpPayload] with Logging {
+                                 executionContext: ExecutionContext) extends SimpleChannelInboundHandler[TcpPayload] with StrictLogging {
 
   def channelRead0(ctx: ChannelHandlerContext, payload: TcpPayload): Unit = {
     Try(payload.pdu.asInstanceOf[ModbusRequest]) match {

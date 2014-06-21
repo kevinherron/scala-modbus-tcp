@@ -16,20 +16,19 @@
 
 package com.digitalpetri.modbus.master
 
-import com.codahale.metrics._
-import com.digitalpetri.modbus.ExceptionResponse
-import com.digitalpetri.modbus.layers.TcpPayload
-import com.digitalpetri.modbus.{ModbusResponseException, ModbusResponse, ModbusRequest}
-import io.netty.channel._
-import io.netty.util.{Timeout, TimerTask}
 import java.util
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.{TimeUnit, ConcurrentHashMap}
+import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
+
+import com.codahale.metrics._
+import com.digitalpetri.modbus.layers.TcpPayload
+import com.digitalpetri.modbus.{ExceptionResponse, ModbusRequest, ModbusResponse, ModbusResponseException}
+import io.netty.channel._
+import io.netty.util.{Timeout, TimerTask}
 import org.slf4j.LoggerFactory
-import scala.Some
-import scala.concurrent.{ExecutionContext, Promise, Future}
-import scala.util.Failure
-import scala.util.Success
+
+import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.util.{Failure, Success}
 
 
 class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseHandler {
