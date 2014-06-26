@@ -19,8 +19,6 @@ package com.digitalpetri.modbus.serialization
 import com.digitalpetri.modbus._
 import io.netty.buffer.Unpooled
 import org.scalatest.FunSuite
-import scala.util.Failure
-import scala.util.Success
 
 class ModbusRequestSerializationTest extends FunSuite {
 
@@ -74,10 +72,7 @@ class ModbusRequestSerializationTest extends FunSuite {
 
     encoder.encode(request, buffer)
 
-    decoder.decode(buffer) match {
-      case Success(decoded) => assert(request == decoded)
-      case Failure(ex) => fail(ex)
-    }
+    assert(request == decoder.decode(buffer))
   }
 
 }

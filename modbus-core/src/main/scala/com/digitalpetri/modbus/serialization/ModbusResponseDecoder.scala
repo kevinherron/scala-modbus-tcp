@@ -19,11 +19,10 @@ package com.digitalpetri.modbus.serialization
 import com.digitalpetri.modbus.FunctionCodes._
 import com.digitalpetri.modbus._
 import io.netty.buffer.ByteBuf
-import scala.util.Try
 
 class ModbusResponseDecoder extends ModbusPduDecoder {
 
-  def decode(buffer: ByteBuf): Try[ModbusPdu] = {
+  def decode(buffer: ByteBuf): ModbusPdu = {
     val code = buffer.readByte()
 
     if (FunctionCode.isExceptionCode(code)) {
@@ -35,7 +34,7 @@ class ModbusResponseDecoder extends ModbusPduDecoder {
     }
   }
 
-  private def responseDecoder(functionCode: FunctionCode): ByteBuf => Try[ModbusPdu] = {
+  private def responseDecoder(functionCode: FunctionCode): ByteBuf => ModbusPdu = {
     functionCode match {
       case ReadCoils                  => decodeReadCoils
       case ReadDiscreteInputs         => decodeReadDiscreteInputs
@@ -50,7 +49,7 @@ class ModbusResponseDecoder extends ModbusPduDecoder {
     }
   }
 
-  def decodeReadCoils(buffer: ByteBuf) = Try {
+  def decodeReadCoils(buffer: ByteBuf) = {
     val byteCount = buffer.readUnsignedByte()
 
     val bools = for (i <- 1 to byteCount) yield byte2Bools(buffer.readByte())
@@ -59,7 +58,7 @@ class ModbusResponseDecoder extends ModbusPduDecoder {
     ReadCoilsResponse(coils)
   }
 
-  def decodeReadDiscreteInputs(buffer: ByteBuf) = Try {
+  def decodeReadDiscreteInputs(buffer: ByteBuf) = {
     val byteCount = buffer.readUnsignedByte()
 
     val bools = for (i <- 1 to byteCount) yield byte2Bools(buffer.readByte())
@@ -68,7 +67,7 @@ class ModbusResponseDecoder extends ModbusPduDecoder {
     ReadDiscreteInputsResponse(inputs)
   }
 
-  def decodeReadHoldingRegisters(buffer: ByteBuf) = Try {
+  def decodeReadHoldingRegisters(buffer: ByteBuf) = {
     val byteCount = buffer.readUnsignedByte()
 
     val quantity = byteCount / 2
@@ -77,7 +76,7 @@ class ModbusResponseDecoder extends ModbusPduDecoder {
     ReadHoldingRegistersResponse(registers)
   }
 
-  def decodeReadInputRegisters(buffer: ByteBuf) = Try {
+  def decodeReadInputRegisters(buffer: ByteBuf) = {
     val byteCount = buffer.readUnsignedByte()
 
     val quantity = byteCount / 2
@@ -86,35 +85,35 @@ class ModbusResponseDecoder extends ModbusPduDecoder {
     ReadInputRegistersResponse(registers)
   }
 
-  def decodeWriteSingleCoil(buffer: ByteBuf) = Try {
+  def decodeWriteSingleCoil(buffer: ByteBuf) = {
     val coilAddress = buffer.readUnsignedShort()
     val coilValue   = buffer.readUnsignedShort()
 
     WriteSingleCoilResponse(coilAddress, coilStatus = coilValue == 0xFF00)
   }
 
-  def decodeWriteSingleRegister(buffer: ByteBuf) = Try {
+  def decodeWriteSingleRegister(buffer: ByteBuf) = {
     val registerAddress = buffer.readUnsignedShort()
     val registerValue   = buffer.readShort()
 
     WriteSingleRegisterResponse(registerAddress, registerValue)
   }
 
-  def decodeWriteMultipleCoils(buffer: ByteBuf) = Try {
+  def decodeWriteMultipleCoils(buffer: ByteBuf) = {
     val startingAddress = buffer.readUnsignedShort()
     val quantity        = buffer.readUnsignedShort()
 
     WriteMultipleCoilsResponse(startingAddress, quantity)
   }
 
-  def decodeWriteMultipleRegisters(buffer: ByteBuf) = Try {
+  def decodeWriteMultipleRegisters(buffer: ByteBuf) = {
     val startingAddress = buffer.readUnsignedShort()
     val quantity        = buffer.readUnsignedShort()
 
     WriteMultipleRegistersResponse(startingAddress, quantity)
   }
 
-  def decodeMaskWriteRegister(buffer: ByteBuf) = Try {
+  def decodeMaskWriteRegister(buffer: ByteBuf) = {
     val referenceAddress  = buffer.readUnsignedShort()
     val andMask           = buffer.readUnsignedShort()
     val orMask            = buffer.readUnsignedShort()
@@ -122,13 +121,13 @@ class ModbusResponseDecoder extends ModbusPduDecoder {
     MaskWriteRegisterResponse(referenceAddress, andMask, orMask)
   }
 
-  def decodeException(inner: FunctionCode)(buffer: ByteBuf) = Try {
+  def decodeException(inner: FunctionCode)(buffer: ByteBuf) = {
     val exceptionCode = ExceptionCode.fromByte(buffer.readByte())
 
     ExceptionResponse(inner, exceptionCode)
   }
 
-  def decodeUnsupported(code: Int)(buffer: ByteBuf) = Try {
+  def decodeUnsupported(code: Int)(buffer: ByteBuf) = {
     UnsupportedPdu(UnsupportedFunction(code))
   }
 

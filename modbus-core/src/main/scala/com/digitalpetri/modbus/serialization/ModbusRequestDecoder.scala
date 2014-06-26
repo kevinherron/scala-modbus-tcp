@@ -19,17 +19,16 @@ package com.digitalpetri.modbus.serialization
 import com.digitalpetri.modbus.FunctionCodes._
 import com.digitalpetri.modbus._
 import io.netty.buffer.ByteBuf
-import scala.util.Try
 
 class ModbusRequestDecoder extends ModbusPduDecoder {
 
-  def decode(buffer: ByteBuf): Try[ModbusPdu] = {
+  def decode(buffer: ByteBuf): ModbusPdu = {
     val functionCode = FunctionCode.fromByte(buffer.readByte())
 
     requestDecoder(functionCode)(buffer)
   }
 
-  private def requestDecoder(functionCode: FunctionCode): ByteBuf => Try[ModbusPdu] = {
+  private def requestDecoder(functionCode: FunctionCode): ByteBuf => ModbusPdu = {
     functionCode match {
       case ReadCoils                  => decodeReadCoils
       case ReadDiscreteInputs         => decodeReadDiscreteInputs
@@ -50,7 +49,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
    * @param buffer the ByteBuf to decode from.
    * @return a decoded ReadCoilsRequest.
    */
-  def decodeReadCoils(buffer: ByteBuf) = Try {
+  def decodeReadCoils(buffer: ByteBuf) = {
     val startAddress  = buffer.readUnsignedShort()
     val quantity      = buffer.readUnsignedShort()
 
@@ -62,7 +61,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
    * @param buffer the ByteBuf to decode from.
    * @return a decoded ReadDiscreteInputsRequest.
    */
-  def decodeReadDiscreteInputs(buffer: ByteBuf) = Try {
+  def decodeReadDiscreteInputs(buffer: ByteBuf) = {
     val startAddress  = buffer.readUnsignedShort()
     val quantity      = buffer.readUnsignedShort()
 
@@ -74,7 +73,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
    * @param buffer the ByteBuf to decode from.
    * @return a decoded ReadHoldingRegistersRequest.
    */
-  def decodeReadHoldingRegisters(buffer: ByteBuf) = Try {
+  def decodeReadHoldingRegisters(buffer: ByteBuf) = {
     val startAddress  = buffer.readUnsignedShort()
     val quantity      = buffer.readUnsignedShort()
 
@@ -86,7 +85,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
    * @param buffer the ByteBuf to decode from.
    * @return a decoded ReadInputRegistersRequest.
    */
-  def decodeReadInputRegisters(buffer: ByteBuf) = Try {
+  def decodeReadInputRegisters(buffer: ByteBuf) = {
     val startAddress  = buffer.readUnsignedShort()
     val quantity      = buffer.readUnsignedShort()
 
@@ -98,7 +97,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
    * @param buffer the ByteBuf to decode from.
    * @return a decoded WriteSingleCoilRequest.
    */
-  def decodeWriteSingleCoil(buffer: ByteBuf) = Try {
+  def decodeWriteSingleCoil(buffer: ByteBuf) = {
     val coilAddress = buffer.readUnsignedShort()
     val coilValue   = buffer.readUnsignedShort()
 
@@ -112,7 +111,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
    * @param buffer the ByteBuf to decode from.
    * @return a decoded WriteSingleRegisterRequest.
    */
-  def decodeWriteSingleRegister(buffer: ByteBuf) = Try {
+  def decodeWriteSingleRegister(buffer: ByteBuf) = {
     val registerAddress = buffer.readUnsignedShort()
     val registerValue   = buffer.readUnsignedShort()
 
@@ -124,7 +123,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
    * @param buffer the ByteBuf to decode from.
    * @return a decoded WriteMultipleCoilsRequest.
    */
-  def decodeWriteMultipleCoils(buffer: ByteBuf) = Try {
+  def decodeWriteMultipleCoils(buffer: ByteBuf) = {
     val startingAddress = buffer.readUnsignedShort()
     val quantity        = buffer.readUnsignedShort()
     val byteCount       = buffer.readUnsignedByte()
@@ -140,7 +139,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
    * @param buffer the ByteBuf to decode from.
    * @return a decoded WriteMultipleRegistersRequest.
    */
-  def decodeWriteMultipleRegisters(buffer: ByteBuf) = Try {
+  def decodeWriteMultipleRegisters(buffer: ByteBuf) = {
     val startingAddress = buffer.readUnsignedShort()
     val quantity        = buffer.readUnsignedShort()
     val byteCount       = buffer.readUnsignedByte()
@@ -157,7 +156,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
    * @param buffer the ByteBuf to decode from.
    * @return a decoded MaskWriteRegisterRequest.
    */
-  def decodeMaskWriteRegister(buffer: ByteBuf) = Try {
+  def decodeMaskWriteRegister(buffer: ByteBuf) = {
     val referenceAddress = buffer.readUnsignedShort()
     val andMask          = buffer.readUnsignedShort()
     val orMask           = buffer.readUnsignedShort()
@@ -165,7 +164,7 @@ class ModbusRequestDecoder extends ModbusPduDecoder {
     MaskWriteRegisterRequest(referenceAddress, andMask, orMask)
   }
 
-  def decodeUnsupported(code: Int)(buffer: ByteBuf) = Try {
+  def decodeUnsupported(code: Int)(buffer: ByteBuf) = {
     UnsupportedPdu(UnsupportedFunction(code))
   }
 

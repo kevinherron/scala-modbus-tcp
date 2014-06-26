@@ -22,6 +22,6 @@ import scala.util.Try
 
 trait ModbusPduDecoder {
 
-  def decode(buffer: ByteBuf): Try[ModbusPdu]
+  def decode(buffer: ByteBuf): ModbusPdu
 
 }

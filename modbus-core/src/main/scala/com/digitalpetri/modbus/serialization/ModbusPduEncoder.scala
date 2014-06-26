@@ -22,6 +22,6 @@ import scala.util.Try
 
 trait ModbusPduEncoder {
 
-  def encode(pdu: ModbusPdu, buffer: ByteBuf): Try[Unit]
+  def encode(pdu: ModbusPdu, buffer: ByteBuf): ByteBuf
 
 }

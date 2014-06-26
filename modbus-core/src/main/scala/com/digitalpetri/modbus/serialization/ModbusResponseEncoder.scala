@@ -18,12 +18,11 @@ package com.digitalpetri.modbus.serialization
 
 import com.digitalpetri.modbus._
 import io.netty.buffer.ByteBuf
-import scala.util.Try
 
 
 class ModbusResponseEncoder extends ModbusPduEncoder {
 
-  def encode(pdu: ModbusPdu, buffer: ByteBuf): Try[Unit] = {
+  def encode(pdu: ModbusPdu, buffer: ByteBuf): ByteBuf = {
     pdu.asInstanceOf[ModbusResponse] match {
       case r: ReadCoilsResponse               => encodeReadCoils(r, buffer)
       case r: ReadDiscreteInputsResponse      => encodeReadDiscreteInputs(r, buffer)
@@ -38,55 +37,63 @@ class ModbusResponseEncoder extends ModbusPduEncoder {
     }
   }
 
-  def encodeReadCoils(response: ReadCoilsResponse, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeReadCoils(response: ReadCoilsResponse, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(response.functionCode.functionCode)
 
     val byteCount = (response.coils.length + 7) / 8
     buffer.writeByte(byteCount)
 
     response.coils.sliding(8, 8).map(bits2Int).foreach(buffer.writeByte)
+
+    buffer
   }
 
-  def encodeReadDiscreteInputs(response: ReadDiscreteInputsResponse, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeReadDiscreteInputs(response: ReadDiscreteInputsResponse, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(response.functionCode.functionCode)
 
     val byteCount = (response.inputs.length + 7) / 8
     buffer.writeByte(byteCount)
 
     response.inputs.sliding(8, 8).map(bits2Int).foreach(buffer.writeByte)
+
+    buffer
   }
 
-  def encodeReadHoldingRegisters(response: ReadHoldingRegistersResponse, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeReadHoldingRegisters(response: ReadHoldingRegistersResponse, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(response.functionCode.functionCode)
 
     val byteCount = response.registers.length * 2
     buffer.writeByte(byteCount)
 
     response.registers.foreach(s => buffer.writeShort(s))
+
+    buffer
   }
 
-  def encodeReadInputRegisters(response: ReadInputRegistersResponse, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeReadInputRegisters(response: ReadInputRegistersResponse, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(response.functionCode.functionCode)
 
     val byteCount = response.registers.length * 2
     buffer.writeByte(byteCount)
 
     response.registers.foreach(s => buffer.writeShort(s))
+
+    buffer
   }
 
-  def encodeWriteMultipleCoils(response: WriteMultipleCoilsResponse, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeWriteMultipleCoils(response: WriteMultipleCoilsResponse, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(response.functionCode.functionCode)
     buffer.writeShort(response.startingAddress)
     buffer.writeShort(response.quantity)
   }
 
-  def encodeWriteMultipleRegisters(response: WriteMultipleRegistersResponse, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeWriteMultipleRegisters(response: WriteMultipleRegistersResponse, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(response.functionCode.functionCode)
     buffer.writeShort(response.startingAddress)
     buffer.writeShort(response.quantity)
   }
 
-  def encodeWriteSingleCoil(response: WriteSingleCoilResponse, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeWriteSingleCoil(response: WriteSingleCoilResponse, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(response.functionCode.functionCode)
     buffer.writeShort(response.coilAddress)
 
@@ -94,20 +101,20 @@ class ModbusResponseEncoder extends ModbusPduEncoder {
     buffer.writeShort(coilStatus)
   }
 
-  def encodeWriteSingleRegister(response: WriteSingleRegisterResponse, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeWriteSingleRegister(response: WriteSingleRegisterResponse, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(response.functionCode.functionCode)
     buffer.writeShort(response.registerAddress)
     buffer.writeShort(response.registerValue)
   }
 
-  def encodeMaskWriteRegister(response: MaskWriteRegisterResponse, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeMaskWriteRegister(response: MaskWriteRegisterResponse, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(response.functionCode.functionCode)
     buffer.writeShort(response.referenceAddress)
     buffer.writeShort(response.andMask)
     buffer.writeShort(response.orMask)
   }
 
-  def encodeExceptionResponse(response: ExceptionResponse, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeExceptionResponse(response: ExceptionResponse, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(response.functionCode.functionCode + 0x80)
     buffer.writeByte(response.exceptionCode.exceptionCode)
   }

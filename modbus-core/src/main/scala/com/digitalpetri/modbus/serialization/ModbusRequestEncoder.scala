@@ -18,13 +18,13 @@ package com.digitalpetri.modbus.serialization
 
 import com.digitalpetri.modbus._
 import io.netty.buffer.ByteBuf
+
 import scala.language.implicitConversions
-import scala.util.Try
 
 
 class ModbusRequestEncoder extends ModbusPduEncoder {
 
-  def encode(pdu: ModbusPdu, buffer: ByteBuf): Try[Unit] = {
+  def encode(pdu: ModbusPdu, buffer: ByteBuf): ByteBuf = {
     pdu.asInstanceOf[ModbusRequest] match {
       case r: ReadCoilsRequest              => encodeReadCoils(r, buffer)
       case r: ReadDiscreteInputsRequest     => encodeReadDiscreteInputs(r, buffer)
@@ -38,31 +38,31 @@ class ModbusRequestEncoder extends ModbusPduEncoder {
     }
   }
 
-  def encodeReadCoils(request: ReadCoilsRequest, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeReadCoils(request: ReadCoilsRequest, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(request.functionCode.functionCode)
     buffer.writeShort(request.startAddress)
     buffer.writeShort(request.quantity)
   }
 
-  def encodeReadDiscreteInputs(request: ReadDiscreteInputsRequest, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeReadDiscreteInputs(request: ReadDiscreteInputsRequest, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(request.functionCode.functionCode)
     buffer.writeShort(request.startAddress)
     buffer.writeShort(request.quantity)
   }
 
-  def encodeReadHoldingRegisters(request: ReadHoldingRegistersRequest, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeReadHoldingRegisters(request: ReadHoldingRegistersRequest, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(request.functionCode.functionCode)
     buffer.writeShort(request.startAddress)
     buffer.writeShort(request.quantity)
   }
 
-  def encodeReadInputRegisters(request: ReadInputRegistersRequest, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeReadInputRegisters(request: ReadInputRegistersRequest, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(request.functionCode.functionCode)
     buffer.writeShort(request.startAddress)
     buffer.writeShort(request.quantity)
   }
 
-  def encodeWriteMultipleCoils(request: WriteMultipleCoilsRequest, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeWriteMultipleCoils(request: WriteMultipleCoilsRequest, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(request.functionCode.functionCode)
     buffer.writeShort(request.startingAddress)
     buffer.writeShort(request.values.size)
@@ -75,18 +75,22 @@ class ModbusRequestEncoder extends ModbusPduEncoder {
     buffer.writeByte(byteCount)
 
     request.values.sliding(8, 8).map(bits2Int).foreach(buffer.writeByte)
+
+    buffer
   }
 
-  def encodeWriteMultipleRegisters(request: WriteMultipleRegistersRequest, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeWriteMultipleRegisters(request: WriteMultipleRegistersRequest, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(request.functionCode.functionCode)
     buffer.writeShort(request.startingAddress)
     buffer.writeShort(request.values.size)
     buffer.writeByte(request.values.size * 2)
 
     request.values.foreach(s => buffer.writeShort(s))
+
+    buffer
   }
 
-  def encodeWriteSingleCoil(request: WriteSingleCoilRequest, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeWriteSingleCoil(request: WriteSingleCoilRequest, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(request.functionCode.functionCode)
     buffer.writeShort(request.coilAddress)
 
@@ -94,13 +98,13 @@ class ModbusRequestEncoder extends ModbusPduEncoder {
     buffer.writeShort(coilStatus)
   }
 
-  def encodeWriteSingleRegister(request: WriteSingleRegisterRequest, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeWriteSingleRegister(request: WriteSingleRegisterRequest, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(request.functionCode.functionCode)
     buffer.writeShort(request.registerAddress)
     buffer.writeShort(request.registerValue)
   }
 
-  def encodeMaskWriteRegister(request: MaskWriteRegisterRequest, buffer: ByteBuf): Try[Unit] = Try {
+  def encodeMaskWriteRegister(request: MaskWriteRegisterRequest, buffer: ByteBuf): ByteBuf = {
     buffer.writeByte(request.functionCode.functionCode)
     buffer.writeShort(request.referenceAddress)
     buffer.writeShort(request.andMask)
