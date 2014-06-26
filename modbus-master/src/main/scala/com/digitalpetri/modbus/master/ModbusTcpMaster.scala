@@ -125,6 +125,17 @@ class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseH
     def getMetrics: util.Map[String, Metric] = metrics
   }
 
+  def getMetricBean: MetricBean = {
+    new MetricBean(
+      requestCount,
+      responseCount,
+      lateResponseCount,
+      timeoutCount,
+      responseTime,
+      decodingErrorCount,
+      unsupportedPduCount)
+  }
+
   private def metricName(name: String) = {
     MetricRegistry.name(classOf[ModbusTcpMaster], config.instanceId.getOrElse(""), name)
   }
@@ -143,3 +154,19 @@ class ModbusTcpMaster(config: ModbusTcpMasterConfig) extends TcpServiceResponseH
 
 }
 
+class MetricBean(requestCount: Counter,
+                 responseCount: Counter,
+                 lateResponseCount: Counter,
+                 timeoutCount: Counter,
+                 responseTime: Timer,
+                 decodingErrorCount: Counter,
+                 unsupportedPduCount: Counter) {
+
+  def getRequestCount: Counter = requestCount
+  def getResponseCount: Counter = responseCount
+  def getTimeoutCount: Counter = timeoutCount
+  def getResponseTime: Timer = responseTime
+  def getDecodingErrorCounter: Counter = decodingErrorCount
+  def getUnsupportedPduCount: Counter = unsupportedPduCount
+
+}
