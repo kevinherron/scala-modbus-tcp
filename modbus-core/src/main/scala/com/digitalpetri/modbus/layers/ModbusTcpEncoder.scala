@@ -36,10 +36,10 @@ class ModbusTcpEncoder(encoder: ModbusPduEncoder) extends MessageToByteEncoder[T
       length        = pduLength + 1,
       unitId        = payload.unitId)
 
-    buffer.markWriterIndex()
+    val currentWriterIndex = buffer.writerIndex()
     buffer.writerIndex(headerStartIndex)
     MbapHeader.encode(header, buffer)
-    buffer.resetWriterIndex()
+    buffer.writerIndex(currentWriterIndex)
   }
 
 }
