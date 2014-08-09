@@ -81,6 +81,11 @@ class ModbusTcpDecoder(decoder: ModbusPduDecoder,
     in.getUnsignedShort(startIndex + ModbusTcpDecoder.LengthFieldIndex)
   }
 
+  override def exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable): Unit = {
+    logger.error(s"Exception caught; closing channel: ${cause.getMessage}", cause)
+    ctx.close()
+  }
+
 }
 
 object ModbusTcpDecoder {
